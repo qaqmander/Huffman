@@ -9,10 +9,21 @@ module BinaryTree (
 
 import qualified Data.List
 
-data BinaryTree a where
-    Branch :: Maybe a -> Maybe (BinaryTree a) -> Maybe (BinaryTree a) -> BinaryTree a
+data BinaryTree a = Branch {
+    value  :: Maybe a,
+    lchild :: Maybe (BinaryTree a),
+    rchild :: Maybe (BinaryTree a)
+}
 
-toStringList :: (Show a) => Maybe (BinaryTree a) -> Integer -> ([String], Integer, Integer)
+instance (Eq a) => Eq (BinaryTree a) where
+    (==) :: BinaryTree a -> BinaryTree a -> Bool
+    (==) (Branch v1 _ _) (Branch v2 _ _) = v1 == v2
+
+instance (Ord a) => Ord (BinaryTree a) where
+    (<=) :: BinaryTree a -> BinaryTree a -> Bool
+    (<=) (Branch v1 _ _) (Branch v2 _ _) = v1 <= v2
+
+toStringList :: (Show a) => Maybe (BinaryTree a) -> Int -> ([String], Int, Int)
 toStringList Nothing dwidth                           = ([[' ' | i <- [1 .. dwidth]]], 1, dwidth)
 toStringList (Just (Branch val lchild rchild)) dwidth = (
     (mcfrontspaces ++ mchar    ++ mcbackspaces) :
@@ -26,7 +37,7 @@ toStringList (Just (Branch val lchild rchild)) dwidth = (
         mchar = case val of
             Nothing -> "|"
             Just t  -> show t
-        mclength = toInteger $ length mchar
+        mclength = length mchar
         height   = max lheight rheight
         tlength  = llength + rlength
         lstring  = lstring_ ++ [[' ' | i <- [1 .. llength]] | j <- [1 .. height - lheight]]
@@ -58,7 +69,7 @@ toStringList (Just (Branch val lchild rchild)) dwidth = (
                                                  otherwise          -> '|'
         skeleton      = lskeleton ++ [mver] ++ rskeleton
 
-output :: (Show a) => Maybe (BinaryTree a) -> Integer -> IO ()
+output :: (Show a) => Maybe (BinaryTree a) -> Int -> IO ()
 output b dwidth = do
     putStrLn $ Data.List.intercalate "\n" stringList
         where (stringList, _, _) = toStringList b dwidth
@@ -67,4 +78,3 @@ size :: Maybe (BinaryTree a) -> Integer
 size x = case x of
     Nothing                       -> 0
     Just (Branch _ lchild rchild) -> size lchild + size rchild + 1
-

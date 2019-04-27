@@ -39,17 +39,20 @@ push (Just p) now_v
     where Branch value tsize lchild rchild = p
           (lsize, rsize) = (size lchild, size rchild)
 
-pop :: (Ord a) => Maybe (PriorityQueue a) -> Maybe (PriorityQueue a)
-pop Nothing  = Nothing
-pop (Just p) = case (lchild, rchild) of
+del :: (Ord a) => Maybe (PriorityQueue a) -> Maybe (PriorityQueue a)
+del Nothing  = Nothing
+del (Just p) = case (lchild, rchild) of
     (Nothing, Nothing) -> Nothing
     (Just lp, Nothing) -> Just lp
     (Nothing, Just rp) -> Just rp
     (Just lp, Just rp) 
-        | ltop < rtop -> Just $ Branch ltop (tsize - 1) (pop lchild) rchild
-        | otherwise   -> Just $ Branch rtop (tsize - 1) lchild (pop rchild)
+        | ltop < rtop -> Just $ Branch ltop (tsize - 1) (del lchild) rchild
+        | otherwise   -> Just $ Branch rtop (tsize - 1) lchild (del rchild)
         where Branch ltop _ _ _ = lp
               Branch rtop _ _ _ = rp
     where Branch value tsize lchild rchild = p
           (lsize, rsize) = (size lchild, size rchild)
+
+pop :: (Ord a) => Maybe (PriorityQueue a) -> (Maybe a, Maybe (PriorityQueue a))
+pop p = (top p, del p)
 
