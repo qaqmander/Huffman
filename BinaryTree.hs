@@ -4,7 +4,6 @@
 module BinaryTree (
     BinaryTree(..), 
     output,
-    root, 
     size
 ) where
 
@@ -63,12 +62,6 @@ output :: (Show a) => Maybe (BinaryTree a) -> Integer -> IO ()
 output b dwidth = do
     putStrLn $ Data.List.intercalate "\n" stringList
         where (stringList, _, _) = toStringList b dwidth
-
-root :: Maybe (BinaryTree a) -> Maybe a
-root x = case x of
-    Nothing                    -> Nothing
-    Just (Branch Nothing  _ _) -> Nothing
-    Just (Branch (Just v) _ _) -> Just v
 
 size :: Maybe (BinaryTree a) -> Integer
 size x = case x of

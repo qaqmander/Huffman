@@ -1,10 +1,14 @@
-{-# LANGUAGE GADTs #-}
 {-# LANGUAGE InstanceSigs #-}
 
-module Term (module Term) where
+module Term (
+    Term(..),
+    combine
+) where
 
-data Term t where
-    Term :: t -> Integer -> Term t
+data Term t = Term {
+    value :: Maybe t,
+    tot   :: Integer
+}
 
 instance (Eq t) => Eq (Term t) where
     (==) :: Term t -> Term t -> Bool
@@ -16,5 +20,9 @@ instance (Ord t) => Ord (Term t) where
 
 instance (Show t) => Show (Term t) where
     show :: Term t -> String
-    show (Term x val) = "Term " ++ show x ++ " " ++ show val
+    show (Term Nothing  _  )   = []
+    show (Term (Just val) tot) = "Term " ++ show val ++ " " ++ show tot
+
+combine :: Term t -> Term t -> Term t
+combine (Term _ tot1) (Term _ tot2) = Term Nothing (tot1 + tot2)
 
