@@ -7,7 +7,7 @@ module BinaryTree (
     size
 ) where
 
-import qualified Data.List
+import Data.List(intercalate)
 
 data BinaryTree a = Branch {
     value  :: Maybe a,
@@ -71,7 +71,7 @@ toStringList (Just (Branch val lchild rchild)) dwidth = (
 
 output :: (Show a) => Maybe (BinaryTree a) -> Int -> IO ()
 output b dwidth = do
-    putStrLn $ Data.List.intercalate "\n" stringList
+    putStrLn $ intercalate "\n" stringList
         where (stringList, _, _) = toStringList b dwidth
 
 size :: Maybe (BinaryTree a) -> Integer
