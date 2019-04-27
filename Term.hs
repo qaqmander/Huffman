@@ -20,7 +20,7 @@ instance (Ord t) => Ord (Term t) where
 
 instance (Show t) => Show (Term t) where
     show :: Term t -> String
-    show (Term Nothing  _  )   = "|"
+    show (Term Nothing    tot) = show tot
     show (Term (Just val) tot) = "Term " ++ show val ++ " " ++ show tot
 
 combine :: Term t -> Term t -> Term t
