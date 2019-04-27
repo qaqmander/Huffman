@@ -16,5 +16,5 @@ instance (Ord t) => Ord (Term t) where
 
 instance (Show t) => Show (Term t) where
     show :: Term t -> String
-    show (Term x val) = show x
+    show (Term x val) = "Term " ++ show x ++ " " ++ show val
 
