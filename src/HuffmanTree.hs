@@ -26,9 +26,9 @@ fromPriorityQueue p n =
                 new_p3         = P.push new_p2 $ B.Branch (T.combine <$> topt1 <*> topt2) top1 top2 in
                     fromPriorityQueue new_p3 (n - 1)
 
-plainToDict :: [Char] -> M.Map Char Integer
+plainToDict :: String -> M.Map Char Integer
 plainToDict plain = iter plain M.empty
-    where iter :: [Char] -> M.Map Char Integer -> M.Map Char Integer
+    where iter :: String -> M.Map Char Integer -> M.Map Char Integer
           iter []     nowres = nowres
           iter (x:xs) nowres = iter xs nextres
               where nextres = M.insert x (1 + M.findWithDefault 0 x nowres) nowres
@@ -38,13 +38,13 @@ fromList l = fromPriorityQueue p n
     where p = listToPriorityQueue l
           n = length l - 1
 
-fromPlain :: [Char] -> HuffmanTree
+fromPlain :: String -> HuffmanTree
 fromPlain plain = fromList $ map (\(x, y) -> T.Term (Just x) y) $ M.toList $ plainToDict plain
 
-decode :: HuffmanTree -> [Bit.Bit] -> Maybe [Char]
-decode (HuffmanTree Nothing)  _ = Nothing
-decode (HuffmanTree (Just t)) b = iter t t b []
-    where iter :: B.BinaryTree (T.Term Char) -> B.BinaryTree (T.Term Char) -> [Bit.Bit] -> [Char] -> Maybe [Char]
+decodeFromBit :: HuffmanTree -> [Bit.Bit] -> Maybe String
+decodeFromBit (HuffmanTree Nothing)  _ = Nothing
+decodeFromBit (HuffmanTree (Just t)) b = iter t t b []
+    where iter :: B.BinaryTree (T.Term Char) -> B.BinaryTree (T.Term Char) -> [Bit.Bit] -> String -> Maybe String
           iter t now []     res = case now of
               B.Branch (Just v) Nothing Nothing -> case v of
                   T.Term (Just value) _ -> Just (res ++ [value])
@@ -58,6 +58,9 @@ decode (HuffmanTree (Just t)) b = iter t t b []
                   | x == Bit.ZERO -> iter t l xs res
                   | x == Bit.ONE  -> iter t r xs res
               otherwise                           -> Nothing
+
+decode :: HuffmanTree -> String -> Maybe String
+decode t cipher = decodeFromBit t $ Bit.fromString cipher
 
 output :: Int -> HuffmanTree -> IO ()
 output n (HuffmanTree b) = B.output b n

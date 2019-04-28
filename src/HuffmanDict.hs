@@ -33,9 +33,12 @@ foldl' f res []     = res
 foldl' f res (x:xs) = let newres = f res x in
                           seq newres $ foldl' f newres xs
 
-encode :: HT.HuffmanTree -> [Char] -> [Bit.Bit]
-encode t plain = foldl' (++) [] $ map (\x -> M.findWithDefault [] x hdict) plain
+encodeToBit :: HT.HuffmanTree -> String -> [Bit.Bit]
+encodeToBit t plain = foldl' (++) [] $ map (\x -> M.findWithDefault [] x hdict) plain
     where HuffmanDict hdict = fromHuffmanTree t
+
+encode :: HT.HuffmanTree -> String -> String
+encode t plain = Bit.toString $ encodeToBit t plain
 
 output :: HuffmanDict -> IO ()
 output (HuffmanDict m) = do

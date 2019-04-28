@@ -1,14 +1,46 @@
-module Test where
+module Main where
 
 import qualified Huffman as H
-import HuffmanTree(output) 
+import qualified System.IO
 
-plain  = "H4sk3ll loves you, happy hacking! >_<"
-htree  = H.fromPlain plain
-cipher = H.encode htree plain
-Just nplain = H.decode htree cipher
+binary = True
+en     = True
+
+plainfilename  = if binary 
+                 then "../yukino.png"
+                 else "../shakespeare.txt"
+cipherfilename = plainfilename  ++ ".encrypted"
+nplainfilename = cipherfilename ++ ".decrypted"
+openFile = if binary 
+           then System.IO.openBinaryFile
+           else System.IO.openFile
 
 main :: IO ()
-main = do
-    putStrLn $ H.toString cipher
-    putStrLn nplain
+main = if en then encode else decode
+
+encode :: IO ()
+encode = do
+    frhandle <- openFile plainfilename  System.IO.ReadMode
+    plain    <- System.IO.hGetContents frhandle
+    let htree  = H.fromPlain plain
+    let cipher = H.encode htree plain
+    fwhandle <- System.IO.openFile cipherfilename System.IO.WriteMode
+    System.IO.hPutStr fwhandle $ cipher
+    putStrLn $ show $ length plain
+    putStrLn $ show $ length cipher `div` 8
+    System.IO.hClose frhandle
+    System.IO.hClose fwhandle
+
+decode :: IO ()
+decode = do
+    fphandle <- openFile plainfilename  System.IO.ReadMode
+    plain    <- System.IO.hGetContents fphandle
+    frhandle <- System.IO.openFile cipherfilename System.IO.ReadMode
+    cipher   <- System.IO.hGetContents frhandle
+    let htree  = H.fromPlain plain
+    let Just nplain = H.decode htree cipher
+    fwhandle <- openFile nplainfilename System.IO.WriteMode
+    System.IO.hPutStr fwhandle $ nplain
+    System.IO.hClose fphandle
+    System.IO.hClose frhandle
+    System.IO.hClose fwhandle
