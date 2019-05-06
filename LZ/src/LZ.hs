@@ -5,6 +5,12 @@ import Data.List(maximum)
 
 data Term = Term Int Char deriving (Show)
 
+fromString :: String -> Term
+fromString s = Term op1 op2
+    where (head, end) = firstN s (length s - 1)
+          op1 = binStringToNum head
+          op2 = if end == "1" then '1' else '0'
+
 type Dict = M.Map String Int
 
 encodeToTerms :: String -> [Term]
@@ -37,6 +43,13 @@ bin x = iter x
           iter x = iter (x `div` 2) ++ rem
               where rem = show (x `mod` 2)
 
+binStringToNum :: String -> Int
+binStringToNum s = iter s 0
+    where iter :: String -> Int -> Int
+          iter []     res = res
+          iter (x:xs) res = iter xs nextres
+              where nextres = res * 2 + (if x == '1' then 1 else 0)
+
 rjust :: Int -> String -> String
 rjust len s = iter (len - length s) s
     where iter :: Int -> String -> String
@@ -56,3 +69,16 @@ termsToString ts = iter ts ""
 encode :: String -> String
 encode = termsToString . encodeToTerms
 
+stringToTerms :: String -> Int -> [Term]
+stringToTerms s len = iter s len []
+    where iter :: String -> Int -> [Term] -> [Term]
+          iter [] len res = res
+          iter s  len res = iter rest len nextres
+              where (now, rest) = firstN s len
+                    nextres = res ++ [fromString now]
+
+firstN :: String -> Int -> (String, String)
+firstN s      0 = ([], s) 
+firstN []     _ = ([], [])
+firstN (x:xs) n = (x : res0, res1)
+    where (res0, res1) = firstN xs (n - 1)
