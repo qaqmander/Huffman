@@ -1,4 +1,4 @@
-module LZ(encode) where
+module LZ(encode, decode) where
 
 import qualified Data.Map as M
 import Data.List(maximum)
