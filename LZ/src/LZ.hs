@@ -12,12 +12,13 @@ fromString s = Term op1 op2
           op2 = if end == "1" then '1' else '0'
 
 type Dict = M.Map String Int
+type DDict = M.Map Int String
 
 encodeToTerms :: String -> [Term]
 encodeToTerms plain = res
-    where (_, res) = iter plain (M.fromList [("", 0)]) []
-          iter :: String -> Dict -> [Term] -> (Dict, [Term])
-          iter []     d res = (d, res)
+    where res = iter plain (M.fromList [("", 0)]) []
+          iter :: String -> Dict -> [Term] -> [Term]
+          iter []     d res = res
           iter (x:xs) d res = iter nextxs nextd nextres
               where (nowhead, nowend, nextxs) = findSeg (x:xs) d
                     nowxs = nowhead ++ [nowend]
@@ -69,8 +70,8 @@ termsToString ts = iter ts ""
 encode :: String -> String
 encode = termsToString . encodeToTerms
 
-stringToTerms :: String -> Int -> [Term]
-stringToTerms s len = iter s len []
+stringToTerms :: Int -> String -> [Term]
+stringToTerms len s = iter s len []
     where iter :: String -> Int -> [Term] -> [Term]
           iter [] len res = res
           iter s  len res = iter rest len nextres
@@ -82,3 +83,17 @@ firstN s      0 = ([], s)
 firstN []     _ = ([], [])
 firstN (x:xs) n = (x : res0, res1)
     where (res0, res1) = firstN xs (n - 1)
+
+dTermsToString :: [Term] -> String
+dTermsToString ts = iter ts (M.fromList [(0, "")]) 1 ""
+    where iter :: [Term] -> DDict -> Int -> String -> String
+          iter []     _ _   res = res
+          iter (t:ts) d num res = iter ts nextd nextnum nextres
+              where Term head end = t 
+                    nextd = M.insert num nowres d
+                    nextnum = num + 1
+                    nextres = res ++ nowres
+                    nowres = M.findWithDefault "" head d ++ [end]
+
+decode :: Int -> String -> String
+decode len = dTermsToString . stringToTerms len
